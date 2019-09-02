@@ -48,7 +48,8 @@ void _sendMessage({String text, String imgUrl}){
     "text" : text,
     "imgUrl" : imgUrl,
     "senderName" : googleSignIn.currentUser.displayName,
-    "senderPhotoUrl": googleSignIn.currentUser.photoUrl
+    "senderPhotoUrl": googleSignIn.currentUser.photoUrl,
+    "senderDate": new DateTime.now().toIso8601String()
   });
 }
 
@@ -93,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: <Widget>[
             Expanded(
               child: StreamBuilder(
-                stream: Firestore.instance.collection("messages").snapshots(),
+                stream: Firestore.instance.collection("messages").orderBy("senderDate").snapshots(),
                   builder: (context, snapshot) {
                   switch(snapshot.connectionState) {
                     case ConnectionState.none:
@@ -103,11 +104,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                       default:
                         return ListView.builder(
-                          reverse: true,
+                          reverse: false,
                           itemCount: snapshot.data.documents.length,
                           itemBuilder: (context, index) {
-                            List r = snapshot.data.documents.reversed.toList();
-                            return ChatMessage(r[index].data);
+                            return ChatMessage(snapshot.data.documents[index].data);
                           },
                         );
 
